@@ -22,6 +22,7 @@
 
 #import "RKLink.h"
 #import "NSString+HTML.h"
+#import "RKLinkEmbeddedMedia.h"
 
 @implementation RKLink
 
@@ -33,6 +34,7 @@
         @"permalink": @"data.permalink",
         @"domain": @"data.domain",
         @"author": @"data.author",
+        @"media": @"data.media",
         @"totalComments": @"data.num_comments",
         @"totalReports": @"data.num_reports",
         @"subreddit": @"data.subreddit",
@@ -49,6 +51,8 @@
         @"hidden": @"data.hidden",
         @"NSFW": @"data.over_18",
         @"edited": @"data.edited",
+        @"upvoteRatio": @"data.upvote_ratio",
+        @"gilded": @"data.gilded",
         @"thumbnailURL": @"data.thumbnail",
         @"authorFlairClass": @"data.author_flair_css_class",
         @"authorFlairText": @"data.author_flair_text",
@@ -70,6 +74,12 @@
     NSString *extension = [[self URL] pathExtension];
     
     return [supportedFileTypeSuffixes containsObject:extension];
+}
+
+- (NSURL *)shortURL
+{
+    NSURL *baseURL = [NSURL URLWithString:@"http://redd.it/"];
+    return [baseURL URLByAppendingPathComponent:self.identifier];
 }
 
 #pragma mark - MTLModel
@@ -139,6 +149,21 @@
         {
             NSTimeInterval createdTimeInterval = [created unsignedIntegerValue];
             return [NSDate dateWithTimeIntervalSince1970:createdTimeInterval];
+        }
+    }];
+}
+
++ (NSValueTransformer *)mediaJSONTransformer
+{
+    return [MTLValueTransformer transformerWithBlock:^id(NSDictionary *media) {
+        NSError *error = nil;
+        RKLinkEmbeddedMedia *mediaObject = [MTLJSONAdapter modelOfClass:[RKLinkEmbeddedMedia class] fromJSONDictionary:media error:&error];
+        
+        if (error) {
+            return nil;
+        }
+        else {
+            return mediaObject;
         }
     }];
 }

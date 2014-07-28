@@ -1,8 +1,8 @@
 Pod::Spec.new do |s|
   s.name         = "RedditKit"
-  s.version      = "1.1.0"
+  s.version      = "1.3.0"
   s.summary      = "An Objective-C wrapper for the reddit API."
-  s.homepage     = "https://github.com/samsymons/RedditKit"
+  s.homepage     = "http://redditkit.com/"
   s.social_media_url = "https://twitter.com/sam_symons"
   s.license      = 'MIT'
   s.author       = { "Sam Symons" => "sam@samsymons.com" }
@@ -15,6 +15,6 @@ Pod::Spec.new do |s|
   s.source_files = 'Classes/*.{h,m}', 'Classes/**/*.{h,m}'
   s.header_mappings_dir =  'Classes'
 
-  s.dependency 'AFNetworking', '~> 2.2'
-  s.dependency 'Mantle', '~> 1.3'
+  s.dependency 'AFNetworking', '~> 2.3'
+  s.dependency 'Mantle', '~> 1.5'
 end

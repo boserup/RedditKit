@@ -28,7 +28,7 @@
 #import "RKSubreddit.h"
 #import "RKPagination.h"
 
-NSString * NSStringFromUserContentCategory(RKUserContentCategory category)
+NSString * RKStringFromUserContentCategory(RKUserContentCategory category)
 {
     switch (category)
     {
@@ -62,7 +62,7 @@ NSString * NSStringFromUserContentCategory(RKUserContentCategory category)
     }
 }
 
-NSString * NSStringFromSubscribedSubredditCategory(RKSubscribedSubredditCategory category)
+NSString * RKStringFromSubscribedSubredditCategory(RKSubscribedSubredditCategory category)
 {
     switch (category)
     {
@@ -82,6 +82,8 @@ NSString * NSStringFromSubscribedSubredditCategory(RKSubscribedSubredditCategory
 }
 
 @implementation RKClient (Users)
+
+#pragma mark - Current User
 
 - (NSURLSessionDataTask *)currentUserWithCompletion:(RKObjectCompletionBlock)completion
 {
@@ -105,34 +107,27 @@ NSString * NSStringFromSubscribedSubredditCategory(RKSubscribedSubredditCategory
     }];
 }
 
-- (NSURLSessionDataTask *)user:(RKUser *)user completion:(RKObjectCompletionBlock)completion
+- (NSURLSessionDataTask *)deleteCurrentUserWithReason:(NSString *)reason currentPassword:(NSString *)currentPassword completion:(RKCompletionBlock)completion
 {
-    return [self userWithUsername:user.username completion:completion];
-}
-
-- (NSURLSessionDataTask *)userWithUsername:(NSString *)username completion:(RKObjectCompletionBlock)completion
-{
-    NSParameterAssert(username);
+    NSParameterAssert(currentPassword);
     
-    NSString *path = [NSString stringWithFormat:@"user/%@/about.json", username];
+    NSString *reasonForDeletion = reason ?: @"Deleted via reddit API";
+    NSDictionary *parameters = @{@"passwd": currentPassword, @"delete_message": reasonForDeletion};
     
-    return [self getPath:path parameters:nil completion:^(NSHTTPURLResponse *response, id responseObject, NSError *error) {
+    __weak __typeof(self)weakSelf = self;
+    return [self postPath:@"api/delete_user" parameters:parameters completion:^(NSHTTPURLResponse *response, id responseObject, NSError *error) {
         if (!completion)
         {
             return;
         }
         
-        if (responseObject)
-        {
-            RKUser *account = [RKObjectBuilder objectFromJSON:responseObject];
-            completion(account, nil);
-        }
-        else
-        {
-            completion(nil, error);
-        }
+        [weakSelf signOut];
+        
+        completion(error);
     }];
 }
+
+#pragma mark - Subreddits
 
 - (NSURLSessionDataTask *)subscribedSubredditsWithCompletion:(RKListingCompletionBlock)completion
 {
@@ -148,7 +143,7 @@ NSString * NSStringFromSubscribedSubredditCategory(RKSubscribedSubredditCategory
     NSMutableDictionary *taskParameters = [NSMutableDictionary dictionary];
     [taskParameters addEntriesFromDictionary:[pagination dictionaryValue]];
 
-    NSString *path = [NSString stringWithFormat:@"subreddits/mine/%@.json", NSStringFromSubscribedSubredditCategory(category)];
+    NSString *path = [NSString stringWithFormat:@"subreddits/mine/%@.json", RKStringFromSubscribedSubredditCategory(category)];
 
     return [self getPath:path parameters:taskParameters completion:^(NSHTTPURLResponse *response, id responseObject, NSError *error) {
         if (!completion) return;
@@ -193,23 +188,34 @@ NSString * NSStringFromSubscribedSubredditCategory(RKSubscribedSubredditCategory
     }];
 }
 
-- (NSURLSessionDataTask *)deleteCurrentUserWithReason:(NSString *)reason currentPassword:(NSString *)currentPassword completion:(RKCompletionBlock)completion
+#pragma mark - Other Users
+
+- (NSURLSessionDataTask *)user:(RKUser *)user completion:(RKObjectCompletionBlock)completion
 {
-    NSParameterAssert(currentPassword);
+    return [self userWithUsername:user.username completion:completion];
+}
+
+- (NSURLSessionDataTask *)userWithUsername:(NSString *)username completion:(RKObjectCompletionBlock)completion
+{
+    NSParameterAssert(username);
     
-    NSString *reasonForDeletion = reason ?: @"Deleted via reddit API";
-    NSDictionary *parameters = @{@"passwd": currentPassword, @"delete_message": reasonForDeletion};
+    NSString *path = [NSString stringWithFormat:@"user/%@/about.json", username];
     
-    __weak __typeof(self)weakSelf = self;
-    return [self postPath:@"api/delete_user" parameters:parameters completion:^(NSHTTPURLResponse *response, id responseObject, NSError *error) {
+    return [self getPath:path parameters:nil completion:^(NSHTTPURLResponse *response, id responseObject, NSError *error) {
         if (!completion)
         {
             return;
         }
         
-        [weakSelf signOut];
-        
-        completion(error);
+        if (responseObject)
+        {
+            RKUser *account = [RKObjectBuilder objectFromJSON:responseObject];
+            completion(account, nil);
+        }
+        else
+        {
+            completion(nil, error);
+        }
     }];
 }
 
@@ -254,7 +260,7 @@ NSString * NSStringFromSubscribedSubredditCategory(RKSubscribedSubredditCategory
 {
     NSParameterAssert(username);
     
-    NSString *path = [NSString stringWithFormat:@"user/%@/%@.json", username, NSStringFromUserContentCategory(category)];
+    NSString *path = [NSString stringWithFormat:@"user/%@/%@.json", username, RKStringFromUserContentCategory(category)];
     
     return [self listingTaskWithPath:path parameters:nil pagination:pagination completion:completion];
 }

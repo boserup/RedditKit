@@ -31,6 +31,8 @@ typedef NS_ENUM(NSUInteger, RKSubredditCategory) {
 	RKSubredditCategoryTop
 };
 
+extern NSString * RKStringFromSubredditCategory(RKSubredditCategory category);
+
 @class RKLink, RKSubreddit, RKMultireddit;
 
 @interface RKClient (Links)
@@ -173,6 +175,14 @@ typedef NS_ENUM(NSUInteger, RKSubredditCategory) {
  @param completion An optional block to be executed upon request completion. It takes two arguments: the RKLink object, and any error that occurred.
  */
 - (NSURLSessionDataTask *)linkWithFullName:(NSString *)fullName completion:(RKObjectCompletionBlock)completion;
+
+/**
+ Takes an RKLink object and returns a new RKLink with extra information, such as the upvoteRatio.
+ 
+ @param link The link for which to expand information.
+ @param completion An optional block to be executed upon request completion. It takes two arguments: the RKLink object, and any error that occurred.
+ */
+- (NSURLSessionDataTask *)linkByExpandingInformationForLink:(RKLink *)link completion:(RKObjectCompletionBlock)completion;
 
 #pragma mark - Submitting
 

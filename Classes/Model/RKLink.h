@@ -22,6 +22,8 @@
 
 #import "RKVotable.h"
 
+@class RKLinkEmbeddedMedia;
+
 @interface RKLink : RKVotable
 
 /**
@@ -55,9 +57,26 @@
 @property (nonatomic, copy, readonly) NSString *author;
 
 /**
+ The ratio of upvotes to downvotes.
+ This is the percentage of how many users like this link.
+ 
+ @note The upvoteRatio is only available to links which have had their information
+ expanded via `linkByExpandingInformationForLink:completion:`.
+ 
+ The upvote ratio is not explicitly rounded to any specific precision. When displaying
+ the ratio to the screen, you will want to specify this yourself.
+ */
+@property (nonatomic, assign, readonly) CGFloat upvoteRatio;
+
+/**
  The time of editing, or nil if it has not been edited.
  */
 @property (nonatomic, strong, readonly) NSDate *edited;
+
+/**
+ The number of times the link has been gilded.
+ */
+@property (nonatomic, assign, readonly) NSUInteger gilded;
 
 /**
  Whether the link has been distinguished by a moderator or admin.
@@ -129,6 +148,11 @@
 @property (nonatomic, copy, readonly) NSString *subredditFullName;
 
 /**
+ The media embedded in this link, if any.
+ */
+@property (nonatomic, strong, readonly) RKLinkEmbeddedMedia *media;
+
+/**
  The URL of the thumbnail for the link.
  This property will be nil if the post is a self post.
  */
@@ -168,5 +192,12 @@
  Whether or not the link has an image URL.
  */
 - (BOOL)isImageLink;
+
+/**
+ Returns the URL in a shortened format. This uses reddit's URL shortener.
+ 
+ @example http://redd.it/92dd8
+ */
+- (NSURL *)shortURL;
 
 @end

@@ -1,10 +1,10 @@
-# RedditKit
+# RedditKit [![Build Status](https://travis-ci.org/samsymons/RedditKit.svg?branch=master)](https://travis-ci.org/samsymons/RedditKit)
 
 RedditKit is a [reddit API](http://www.reddit.com/dev/api) wrapper, written in Objective-C.
 
 ## Documention
 
-Documentation for RedditKit is [available on CocoaDocs](http://cocoadocs.org/docsets/RedditKit/1.1.0/).
+Documentation for RedditKit is [available on CocoaDocs](http://cocoadocs.org/docsets/RedditKit/1.2.0/).
 
 ## Installation
 
@@ -12,7 +12,7 @@ Documentation for RedditKit is [available on CocoaDocs](http://cocoadocs.org/doc
 
 Add this to your Podfile:
 
-	pod 'RedditKit', '~> 1.0'
+	pod 'RedditKit', '~> 1.2'
 
 Then run:
 	
@@ -87,10 +87,7 @@ RKLink *link = [[self links] firstObject];
 ```obj-c
 RKLink *link = [[self links] firstObject];
 
-RKPagination *pagination = [RKPagination paginationWithLimit:100];
-pagination.commentSortingMethod = RKCommentSortingMethodTop;
-
-[[RKClient sharedClient] commentsForLink:link pagination:pagination completion:^(NSArray *comments, NSError *error) {
+[[RKClient sharedClient] commentsForLink:link completion:^(NSArray *comments, NSError *error) {
 	if (comments)
 	{
 		NSLog(@"Comments: %@", comments);

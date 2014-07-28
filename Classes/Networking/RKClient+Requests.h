@@ -28,7 +28,7 @@ typedef void(^RKRequestCompletionBlock)(NSHTTPURLResponse *response, id response
 @interface RKClient (Requests)
 
 /**
- Many of reddit's API methods require a set of parameters and simply return an error if they fail, and nothing (of value, at least) when they succeed.
+ Many of reddit's API methods require a set of parameters and simply return an error if they fail, and nothing of value when they succeed.
  This method eliminates much of the repetition when writing methods around these methods.
  
  @param path The path to request.
@@ -46,6 +46,18 @@ typedef void(^RKRequestCompletionBlock)(NSHTTPURLResponse *response, id response
  @param completion A block to execute at the end of the request.
  */
 - (NSURLSessionDataTask *)listingTaskWithPath:(NSString *)path parameters:(NSDictionary *)parameters pagination:(RKPagination *)pagination completion:(RKListingCompletionBlock)completion;
+
+/**
+ This method makes a request for a listing and returns the full response.
+ This is in contrast to listingTaskWithPath:parameters:pagination:completion: which returns
+ a listing in its formatted state, with all JSON parsed.
+ 
+ @param path The path to request.
+ @param parameters The parameters to pass with the request.
+ @param pagination The optional pagination object.
+ @param completion A block to execute at the end of the request.
+ */
+- (NSURLSessionDataTask *)fullListingWithPath:(NSString *)path parameters:(NSDictionary *)parameters pagination:(RKPagination *)pagination completion:(RKObjectCompletionBlock)completion;
 
 /**
  This method wraps around the 'api/friend' API, as many different methods are based on this endpoint.
